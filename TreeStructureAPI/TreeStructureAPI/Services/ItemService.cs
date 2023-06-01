@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using TreeStructureAPI.Models;
 using TreeStructureAPI.Models.Dto;
 using TreeStructureAPI.Repositories;
@@ -28,11 +29,11 @@ public class ItemService : IItemService
         return await Task.FromResult(result);
     }
 
-    public async Task<List<GetItemDto>?> GetAllItems()
+    public async Task<List<Item>?> GetAllItems(Guid? rootId, SortDirection? sortDirection)
     {
-        var items = await _itemRepository.GetAllItems();
-        var dtos = items.Where(e => e.ParentItemId == null).Select(MapItem).ToList();
-        return await Task.FromResult(dtos);
+        var items = await _itemRepository.GetAllItems(rootId, sortDirection);
+        //var dtos = items.Where(e => e.ParentItemId == null).Select(MapItem).ToList();
+        return await Task.FromResult(items);
     }
 
     public async Task<bool> UpdateItem(Guid id, Item item)

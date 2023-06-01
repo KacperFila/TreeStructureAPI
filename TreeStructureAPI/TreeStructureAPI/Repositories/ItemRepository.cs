@@ -26,12 +26,35 @@ public class ItemRepository : IItemRepository
         return await Task.FromResult(item);
     }
 
-    public async Task<List<Item>?> GetAllItems()
+    public async Task<List<Item>> GetAllItems(Guid? rootId, SortDirection? sortDirection)
     {
-        var items = await _context.Items.Include(i => i.ChildItems).ToListAsync();
-        var roots = items.Where(i => i.ParentItemId == null).ToList();
-        return await Task.FromResult(roots);
+        var allItems = _context.Items
+            .Where(i => i.ParentItemId == null)
+            .Include(i => i.ChildItems)
+            .ToList();
+        
+        if (rootId == null && sortDirection != null)
+        {
+            if (sortDirection == SortDirection.ASC) return allItems.OrderBy(i => i.Title).ToList();
+            if (sortDirection == SortDirection.DESC) return allItems.OrderByDescending(i => i.Title).ToList();
+        }
+            
+        var rootItem = allItems.FirstOrDefault(i => i.Id == rootId);
+
+        if (rootItem != null && sortDirection != null)
+        {
+            if (sortDirection == SortDirection.ASC)
+            {
+                rootItem.ChildItems = rootItem.ChildItems.OrderBy(item => item.Title).ToList();
+            }
+            else if (sortDirection == SortDirection.DESC)
+            {
+                rootItem.ChildItems = rootItem.ChildItems.OrderByDescending(item => item.Title).ToList();
+            }
+        }
+        return allItems;
     }
+
 
     public async Task<bool> UpdateItem(Guid id, Item item)
     {

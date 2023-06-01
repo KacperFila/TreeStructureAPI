@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TreeStructureAPI.Mappers;
 using TreeStructureAPI.Models;
@@ -32,9 +33,9 @@ app.MapPost("/api/item", async (IItemService itemService, Item item, ItemValidat
     return result is not null ? Results.Created($"/api/item/{result}", result) : Results.BadRequest();
 });
 
-app.MapGet("/api/item", async (IItemService itemService) =>
+app.MapGet("/api/item", async (IItemService itemService, [FromQuery] SortDirection? sortDirection, [FromQuery] Guid? rootId) =>
 {
-    var result = await itemService.GetAllItems();
+    var result = await itemService.GetAllItems(rootId, sortDirection);
     return result.Any() ? Results.Ok(result) : Results.NotFound();
 
 });

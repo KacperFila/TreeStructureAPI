@@ -11,5 +11,6 @@ public class ItemMappingProfile : Profile
         CreateMap<Item, GetItemDto>()
             .ForMember(dest => dest.ChildItems, opt => opt.MapFrom(src => src.ChildItems));
         CreateMap<GetItemDto, Item>();
+        CreateMap<IOrderedEnumerable<Item>, GetItemDto>();
     }
 }
