@@ -13,7 +13,7 @@ builder.Services.AddScoped<IItemRepository, ItemRepository>();
 builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddAutoMapper(typeof(ItemMappingProfile));
 builder.Services.AddValidatorsFromAssemblyContaining(typeof(ItemValidator));
-
+builder.Services.AddCors();
 var connectionString = builder.Configuration.GetConnectionString("ConnectionString");
 builder.Services.AddDbContext<AppDbContext>(opt => opt.UseSqlServer(connectionString));
 
@@ -23,6 +23,10 @@ builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =
 });
 
 var app = builder.Build();
+
+app.UseCors(policy => policy.AllowAnyOrigin()
+    .AllowAnyMethod()
+    .AllowAnyHeader());
 
 app.MapPost("/api/item", async (IItemService itemService, Item item, ItemValidator validator) =>
 {
