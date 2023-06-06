@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using TreeStructureAPI.Mappers;
 using TreeStructureAPI.Models;
 using TreeStructureAPI.Repositories;
+using TreeStructureAPI.Seeders;
 using TreeStructureAPI.Services;
 using TreeStructureAPI.Validators;
 
@@ -23,6 +24,10 @@ builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =
 });
 
 var app = builder.Build();
+
+using var scope = app.Services.CreateScope();
+var dbContext = scope.ServiceProvider.GetService<AppDbContext>()!;
+Seeder.Seed(dbContext);
 
 app.UseCors(policy => policy.AllowAnyOrigin()
     .AllowAnyMethod()
@@ -56,7 +61,7 @@ app.MapDelete("api/item/{id:guid}", async (IItemService itemService, Guid id) =>
     return result ? Results.NoContent() : Results.NotFound();
 });
 
-app.MapPost("api/item/{id:guid}", async (IItemService itemService, Guid id, Item item) =>
+app.MapPut("api/item/{id:guid}", async (IItemService itemService, Guid id, Item item) =>
 {
     var result = await itemService.UpdateItem(id, item);
     return result ? Results.NoContent() : Results.NotFound();
