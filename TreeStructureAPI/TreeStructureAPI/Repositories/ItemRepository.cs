@@ -50,19 +50,30 @@ public class ItemRepository : IItemRepository
 
     public async Task<bool> DeleteItem(Guid id)
     {
-        var item = await _context.Items.Include(i => i.ChildItems).SingleOrDefaultAsync(i => i.Id == id);
-        if (item is null) return false;
-        await RecursiveDelete(item);
-        await _context.SaveChangesAsync();
-        return true;
+        var item = await GetItemById(id);
+        if (item != null)
+        {
+            await DeleteChildren(item);
+            _context.Items.Remove(item);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        return false;
     }
 
-    private async Task RecursiveDelete(Item item)
+    private async Task DeleteChildren(Item item)
     {
-        foreach (var child in item.ChildItems.ToList())
+        if (item.ChildItems.Count > 0)
         {
-            await RecursiveDelete(child);
+            var childItems = item.ChildItems.ToList();
+            foreach (var childItem in childItems)
+            {
+                await DeleteChildren(childItem);
+                _context.Items.Remove(childItem);
+            }
         }
-        _context.Items.Remove(item);
+        
+        await _context.SaveChangesAsync();
+        await Task.CompletedTask;
     }
 }

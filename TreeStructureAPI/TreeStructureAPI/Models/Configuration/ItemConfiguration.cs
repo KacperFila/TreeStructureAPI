@@ -10,6 +10,6 @@ public class ItemConfiguration : IEntityTypeConfiguration<Item>
         builder.HasOne(i => i.ParentItem)
             .WithMany(i => i.ChildItems)
             .HasForeignKey(i => i.ParentItemId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
