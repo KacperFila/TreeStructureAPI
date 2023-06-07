@@ -35,9 +35,22 @@ public class ItemService : IItemService
         return await Task.FromResult(dtos);
     }
 
-    public async Task<bool> UpdateItem(Guid id, Item item)
+    public async Task<List<GetItemDto>?> GetItemsExcludingParent(Guid id)
     {
-        var result = await _itemRepository.UpdateItem(id, item);
+        var items = await _itemRepository.GetItemsExcludingParent(id);
+        var dtos = _mapper.Map<List<GetItemDto>>(items);
+        return await Task.FromResult(dtos);
+    }
+
+    public async Task<bool> RenameItem(Guid id, Item item)
+    {
+        var result = await _itemRepository.RenameItem(id, item);
+        return await Task.FromResult(result);
+    }
+    
+    public async Task<bool> MoveItem(Guid id, Item item)
+    {
+        var result = await _itemRepository.MoveItem(id, item);
         return await Task.FromResult(result);
     }
 
