@@ -10,9 +10,9 @@ public class ItemValidator : AbstractValidator<Item>
     public ItemValidator(AppDbContext context)
     {
         _context = context;
-        RuleFor(i => i.Title).Length(1, 20).WithMessage("Title's length should be between 1 and 20 characters!");
+        RuleFor(i => i.Title).Length(1, 20).WithMessage("Tytuł powinien zawierać się między 1 a 20 znakami!");
         RuleFor(i => i.Title).Must(NotExistInParent)
-            .WithMessage("Item with given name already exists at this level!");
+            .WithMessage("Na danym poziomie istnieje już item o tej nazwie!");
     }
 
     private bool NotExistInParent(Item item, string title)

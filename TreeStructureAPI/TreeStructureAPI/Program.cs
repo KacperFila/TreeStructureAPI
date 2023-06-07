@@ -33,6 +33,7 @@ app.UseCors(policy => policy.AllowAnyOrigin()
     .AllowAnyMethod()
     .AllowAnyHeader());
 
+#region endpoints
 app.MapPost("/api/item", async (IItemService itemService, Item item, ItemValidator validator) =>
 {
     var validationResult = await validator.ValidateAsync(item);
@@ -61,10 +62,27 @@ app.MapDelete("api/item/{id:guid}", async (IItemService itemService, Guid id) =>
     return result ? Results.NoContent() : Results.NotFound();
 });
 
-app.MapPut("api/item/{id:guid}", async (IItemService itemService, Guid id, Item item) =>
+app.MapPut("api/item/rename/{id:guid}", async (IItemService itemService, Guid id, Item item) =>
 {
-    var result = await itemService.UpdateItem(id, item);
+    var result = await itemService.RenameItem(id, item);
     return result ? Results.NoContent() : Results.NotFound();
 });
+
+app.MapPut("api/item/move/{id:guid}", async (IItemService itemService, Guid id, Item item) =>
+{
+    var result = await itemService.MoveItem(id, item);
+    return result ? Results.NoContent() : Results.NotFound();
+});
+
+app.MapGet("/api/item/exclude/{id:Guid}", async (IItemService itemService, Guid id) =>
+{
+    var result = await itemService.GetItemsExcludingParent(id);
+    return result is not null ? Results.Ok(result) : Results.NotFound();
+
+});
+
+
+
+#endregion
 
 app.Run();

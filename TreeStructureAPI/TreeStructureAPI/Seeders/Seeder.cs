@@ -4,75 +4,85 @@ namespace TreeStructureAPI.Seeders;
 
 public static class Seeder
 {
-    public static void Seed(AppDbContext context)
+    public static void Seed(AppDbContext _context)
     {
-        if (!context.Items.Any())
+        var items = new List<Item>()
         {
-            var items = new List<Item>()
+            new Item()
             {
-                new Item()
+                Title = "Honda",
+                ChildItems = new List<Item>()
                 {
-                    Title = "Element 1",
-                    ChildItems = new List<Item>()
+                    new Item()
                     {
-                        new Item()
+                        Title = "Civic",
+                        ChildItems = new List<Item>()
                         {
-                            Title = "Element 1.1"
-                        },
-                        new Item()
-                        {
-                            Title = "Element 1.2"
-                        },
-                        new Item()
-                        {
-                            Title = "Element 1.3"
-                        }
-                    }
-                },
-                new Item()
-                {
-                    Title = "Element 2",
-                    ChildItems = new List<Item>()
-                    {
-                        new Item()
-                        {
-                            Title = "Element 2.1"
-                        },
-                        new Item()
-                        {
-                            Title = "Element 2.2",
-                            ChildItems = new List<Item>()
+                            new Item()
                             {
-                                new Item()
+                                Title = "VI"
+                            },
+                            new Item()
+                            {
+                                Title = "VII"
+                            },
+                            new Item()
+                            {
+                                Title = "VIII",
+                                ChildItems = new List<Item>()
                                 {
-                                    Title = "Element 2.2.1",
-                                    ChildItems = new List<Item>()
+                                    new Item()
                                     {
-                                        new Item()
-                                        {
-                                            Title = "Element 2.2.1.1"
-                                        },
-                                        new Item()
-                                        {
-                                            Title = "Element 2.2.1.2"
-                                        },
-                                        new Item()
-                                        {
-                                            Title = "Element 2.2.1.3"
-                                        }
-                                    }
-                                },
-                            }
-                        },
-                        new Item()
-                        {
-                            Title = "Element 2.3"
+                                        Title = "Sedan"
+                                    },
+                                    new Item()
+                                    {
+                                        Title = "Hatchback"
+                                    },
+                                    new Item()
+                                    {
+                                        Title = "Coupe"
+                                    },
+                                }
+                            },
                         }
+                    },
+                    new Item()
+                    {
+                        Title = "Integra"
+                    },
+                    new Item()
+                    {
+                        Title = "NSX"
                     }
-                },
-            };
-            context.AddRange(items);
-            context.SaveChanges();
+                }
+            },
+            new Item()
+            {
+                Title = "Peugeot",
+                ChildItems = new List<Item>()
+                {
+                    new Item()
+                    {
+                        Title = "RCZ"
+                    },
+                    new Item()
+                    {
+                        Title = "508"
+                    },
+                    new Item()
+                    {
+                        Title = "407"
+                    }
+                }
+            },
+
+        };
+
+        if (!_context.Items.Any())
+        {
+            _context.AddRange(items);
+            _context.SaveChanges();
         }
     }
 }
