@@ -33,7 +33,8 @@ public class ItemRepository : IItemRepository
         return await Task.FromResult(roots);
     }
 
-    public async Task<bool> UpdateItem(Guid id, Item item)
+
+    public async Task<bool> RenameItem(Guid id, Item item)
     {
         var itemToUpdate = await _context.Items.SingleOrDefaultAsync(i => i.Id == id);
         if (itemToUpdate is null) return await Task.FromResult(false);
@@ -41,11 +42,68 @@ public class ItemRepository : IItemRepository
         if (item.ParentItemId == id) return await Task.FromResult(false);
         
         itemToUpdate.Title = item.Title;
-        itemToUpdate.ChildItems = item.ChildItems;
-        itemToUpdate.ParentItemId = item.ParentItemId;
-        
+
         await _context.SaveChangesAsync();
         return await Task.FromResult(true);
+    }
+    
+    public async Task<bool> MoveItem(Guid id, Item item)
+    {
+        var itemToUpdate = await _context.Items.SingleOrDefaultAsync(i => i.Id == id);
+        if (itemToUpdate is null) return await Task.FromResult(false);
+
+        if (item.ParentItemId == id) return await Task.FromResult(false);
+        
+        itemToUpdate.ParentItemId = item.ParentItemId;
+
+        await _context.SaveChangesAsync();
+        return await Task.FromResult(true);
+    }
+    public async Task<List<Item>?> GetItemsExcludingParent(Guid id)
+    {
+        var allItems = await _context.Items.Include(i => i.ChildItems).ToListAsync();
+        var excludedItemsList = new List<Item>();
+
+        var givenItem = allItems.SingleOrDefault(i => i.Id == id);
+        if (givenItem != null)
+        {
+            var parentItem = allItems.FirstOrDefault(i => i.ChildItems.Contains(givenItem));
+            if (parentItem != null)
+            {
+                excludedItemsList.Add(parentItem);
+                AddNestedItems(excludedItemsList, parentItem.ChildItems);
+            }
+        }
+
+        var excludedItems = excludedItemsList.Concat(excludedItemsList.SelectMany(i => FlattenList(i.ChildItems))).ToList();
+        var result = allItems.Except(excludedItems).ToList();
+
+        return result.Select(i => new Item()
+        {
+            Id = i.Id,
+            Title = i.Title
+        }).ToList();
+    }
+
+    
+    private void AddNestedItems(List<Item> result, List<Item> nestedItems)
+    {
+        foreach (var item in nestedItems)
+        {
+            result.Add(item);
+            AddNestedItems(result, item.ChildItems);
+        }
+    }
+
+    private List<Item> FlattenList(List<Item> items)
+    {
+        var flattenedItems = new List<Item>();
+        foreach (var item in items)
+        {
+            flattenedItems.Add(item);
+            flattenedItems.AddRange(FlattenList(item.ChildItems));
+        }
+        return flattenedItems;
     }
 
     public async Task<bool> DeleteItem(Guid id)
